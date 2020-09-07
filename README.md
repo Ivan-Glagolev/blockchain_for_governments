@@ -4,6 +4,5 @@ It doesn't matter whether we believe in God or not, but speaking in certain term
 
 There are no needs without sin; there are no transactions between owners without needs; there are no "transaction сosts" by Ronald Coase without transactions; if there are no transaction costs, which is possible thanks to the blockchain, then managers, banks, courts, police, etc. are not needed.
 
-More information about practical application of blockchain technology you can find on my LinkedIn Page:
-
+More information about practical application of blockchain technology you can find on my LinkedIn Page: 
 https://www.linkedin.com/in/IvanGlagolev/
