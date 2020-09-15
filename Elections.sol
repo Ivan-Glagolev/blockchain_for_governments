@@ -1,16 +1,6 @@
 pragma solidity ^0.7.1;
 // SPDX-License-Identifier: GlagolevIvan
 
-/* 
-README
-
-Договоримся, что Имя и Фамилию будем отправлять в следующем формате:
-
-NamSur
-
-Первые три буквы имени и первые три буквы фамилии биз пробелов, имя и фамилия начинются с заглавных букв
-*/
-
 contract ElectionsMissWorld {
     
     address public Manager;
