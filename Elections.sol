@@ -1,16 +1,6 @@
 pragma solidity ^0.7.1;
 // SPDX-License-Identifier: GlagolevIvan
 
-/* 
-README
-
-Договоримся, что Имя и Фамилию будем отправлять в следующем формате:
-
-NamSur
-
-Первые три буквы имени и первые три буквы фамилии биз пробелов, имя и фамилия начинются с заглавных букв
-*/
-
 contract ElectionsMissWorld {
     
     address public Manager;
@@ -54,7 +44,7 @@ contract ElectionsMissWorld {
         
     }
     
-    function getState () public view onlyManager returns (State) 
+    function getState () public view onlyManager returns (State) //Узнать статус выборов
     {               
         return ElectionsState;
     }
@@ -62,6 +52,5 @@ contract ElectionsMissWorld {
     function selectWinner() public onlyManager{             //Выбрать победителя и завершить голосование
         
     }
-    
     
 }
