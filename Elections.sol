@@ -32,7 +32,7 @@ contract ElectionsMissWorld {
     
     
     
-    mapping(string => uint16) public MissWorld;
+    mapping(string => uint) public MissWorld;
     uint WinnerName;
     
     
@@ -58,20 +58,20 @@ contract ElectionsMissWorld {
         _;
     }
     
-    function Exist(string memory Name, mapping(string=>uint16) NamesAndVotes) public StateRunning returns(bool){
-        bool existance = 0;
-        if (NamesAndVotes(Name) = uint16){
-            existance = 1;
+    function Exist(string memory Name) public StateRunning returns(bool){ //Существует тот за кого голосуем?
+        bool existance = false;
+        if (MissWorld[Name] > 0){
+            existance = true;
         }
         return existance;
     }
     
-    function vote(string memory NamSur) public notManager StateRunning{
-        require(Exist(NamSur, MissWorld) = 1);
+    function vote(string memory NamSur) public notManager StateRunning{ //Проголосовать
+        require(Exist(NamSur, MissWorld) = true);
         MissWorld(NamSur)++;
     }
     
-    function runForElections (string memory NamSur) public notManager StateRunning returns(string memory){
+    function runForElections (string memory NamSur) public notManager StateRunning returns(string memory){ //Баллотироваться
         if (Exist(NamSur, MissWorld) = 1) {
             return "Attention! you have already been run for elections!";
         } else {
