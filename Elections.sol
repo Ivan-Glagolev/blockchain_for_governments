@@ -58,7 +58,7 @@ contract ElectionsMissWorld {
         _;
     }
     
-    function Exist(string memory Name) public StateRunning returns(bool){ //Существует тот за кого голосуем?
+    function Exist(string memory Name) public view StateRunning returns(bool){ //Существует тот за кого голосуем?
         bool existance = false;
         if (MissWorld[Name] > 0){
             existance = true;
@@ -67,15 +67,18 @@ contract ElectionsMissWorld {
     }
     
     function vote(string memory NamSur) public notManager StateRunning{ //Проголосовать
-        require(Exist(NamSur, MissWorld) = true);
-        MissWorld(NamSur)++;
+        bool existence = Exist(NamSur);
+        if (existence = true) {
+            MissWorld[NamSur] += 1;
+        }
     }
     
     function runForElections (string memory NamSur) public notManager StateRunning returns(string memory){ //Баллотироваться
-        if (Exist(NamSur, MissWorld) = 1) {
+    bool existence = Exist(NamSur);
+        if (existence = true) {
             return "Attention! you have already been run for elections!";
         } else {
-            MissWorld.push(NamSur, 1);
+            MissWorld[NamSur] = 1;
             return "Ok, you run for elections! Congrats!";
         }
     }
