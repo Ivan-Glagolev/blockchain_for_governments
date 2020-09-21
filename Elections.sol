@@ -1,4 +1,4 @@
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity >=0.7.1 <0.8.0;
 // SPDX-License-Identifier: GlagolevIvanAlexeevich2001
 
 /* 
@@ -104,7 +104,7 @@ contract ElectionsMissWorld {
     itmap data;
     using IterableMapping for itmap;
     
-    constructor() public {
+    constructor() {
         Manager = msg.sender;
         ElectionsState = State_1.Running;
     }
