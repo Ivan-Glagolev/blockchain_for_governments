@@ -1,35 +1,20 @@
 pragma solidity >=0.7.1 <0.8.0;
 // SPDX-License-Identifier: GlagolevIvanAlexeevich2001
 
-/* 
-Договоримся, что Имя и Фамилию будем отправлять в следующем формате:
-
-NamSur
-
-Первые три буквы имени и первые три буквы фамилии биз пробелов, имя и фамилия начинются с заглавных букв
-
-NB! Сделать функцию selectWinner
-*/
-
-
-
 /*структура (ключ => значение)*/
-struct IndexValue
-{
+struct IndexValue{
     uint keyIndex;                                      // порядковый индекс ключа элемента
     uint value;                                         // значение элемента
 }
 
 /*структура (ключ => существование_элемента)*/
-struct KeyFlag
-{
+struct KeyFlag{
     uint key;                                           // ключ элемента
     bool deleted;                                       // флаг: true - удалён элемент, false - элемент существует
 }
 
 /*структура общая*/
-struct itmap
-{
+struct itmap{
     mapping(uint=>IndexValue) data;
     KeyFlag [] keys;
     uint size;
@@ -58,6 +43,13 @@ library IterableMapping {
         self.keys[keyIndex - 1].deleted = true;         // ПОМЕТИТЬ, что элемент с индексом keyIndex (-1 потому что начинаем с нуля) удалён, т.е. флаг_удадён ставим на true
         self.size --;                                   // -1 элемент от существующего объёма данных
     }
+    
+    function addOneVote (itmap storage self, uint key) internal returns(bool) {
+        uint keyIndex = self.data[key].keyIndex;
+        if(keyIndex == 0) return false;
+        self.data[key].value ++;
+    }
+    
     /*кажется, это НЕ верная функция*/
     function contains(itmap storage self, uint key) internal view returns(bool) { 
         return self.data[key].keyIndex > 0;
@@ -91,16 +83,21 @@ library IterableMapping {
 contract ElectionsMissWorld {
     
     address public Manager;
+    struct Winner {
+        uint key;
+        uint votes;
+    }
+    Winner WinnerOne;
     
     enum State_1 {Running, Ended}
     State_1 public ElectionsState;
     
-    mapping (uint=>uint) Winner;
-    
-    enum State_2 {Voted, DidntVote}
-    State_2 internal VouterState;
+    enum State_2 {DidntVote, Voted}
     mapping (address => State_2) internal Vouter;
-
+    
+    enum State_3 {DidntRun, AlreadyRun}
+    mapping (address => State_3) internal Candidate;
+    
     itmap data;
     using IterableMapping for itmap;
     
@@ -121,27 +118,50 @@ contract ElectionsMissWorld {
         require(ElectionsState == State_1.Running);
         _;
     }
-    modifier VouterDidnVote() {
-        require(VouterState == State_2.DidntVote);
+    modifier StateEnded(){
+        require(ElectionsState == State_1.Ended);
+        _;
+    }
+    modifier UserStateCorrect() {
+        require( (Vouter[msg.sender] == State_2.DidntVote) && (Candidate[msg.sender] == State_3.DidntRun) );
         _;
     }
     
-    function toVote(uint k, uint v)public VouterDidnVote returns(uint size) {
-        data.insert(k, v);
-        VouterState = State_2.Voted;
+    function RunForElections(uint k)public UserStateCorrect StateRunning returns(uint size) {
+        data.insert(k, 1);
+        Candidate[msg.sender] = State_3.AlreadyRun;
         return data.size;
     }
     
-    /*
-    function runForElections (string memory NamSur) public notManager StateRunning returns(string memory){ //Баллотироваться
-    bool existence = Exist(NamSur);
-        if (existence = true) {
-            return "Attention! you have already been run for elections!";
-        } else {
-            MissWorld[NamSur] = 1;
-            return "Ok, you run for elections! Congrats!";
+    function ToVote(uint k) public UserStateCorrect returns (uint){
+        data.addOneVote(k);
+        Vouter[msg.sender] = State_2.Voted;
+        return data.size;
+    }
+    
+    function GetState() public view onlyManager returns (uint) {
+        return data.keys.length;
+    }
+    
+    function GetInfoOfCandidate(uint key)public view returns (uint value) {
+         value = data.data[key].value;
+    }
+    
+    function StopElections() public onlyManager StateRunning returns (uint KeyWinner, uint ValueWinner){
+        ElectionsState = State_1.Ended;
+        SelectWinner();
+        KeyWinner = WinnerOne.key;
+        ValueWinner = WinnerOne.votes;
+    }
+    
+    function SelectWinner () internal StateEnded {
+        for (uint i = data.iterate_start(); data.iterate_valid(i); i = data.iterate_next(i)) {
+            (uint key, uint value) = data.iterate_get(i);
+            if (WinnerOne.votes <= value) {
+                WinnerOne.votes = value;
+                WinnerOne.key = key;
+            }
         }
     }
-    */
     
 }
