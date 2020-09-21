@@ -1,32 +1,18 @@
-pragma solidity ^0.7.1;
-
+pragma solidity >=0.6.0 <0.8.0;
 // SPDX-License-Identifier: GlagolevIvanAlexeevich2001
 
 /* 
-README
-
 Договоримся, что Имя и Фамилию будем отправлять в следующем формате:
 
 NamSur
 
 Первые три буквы имени и первые три буквы фамилии биз пробелов, имя и фамилия начинются с заглавных букв
-*/
 
-/*
-NB! Сделать учет адреса msg.sender для предотвращения вбросов "пачками"
-*/
-
-/*
-NB! Getter функции создаются автоматически при развертывании контракта
-только для PUBLIC переменных в STORAGE
-*/
-
-/*
 NB! Сделать функцию selectWinner
 */
 
 
-pragma solidity >=0.6.0 <0.8.0;
+
 /*структура (ключ => значение)*/
 struct IndexValue
 {
@@ -118,7 +104,7 @@ contract ElectionsMissWorld {
     itmap data;
     using IterableMapping for itmap;
     
-    constructor(){
+    constructor() public {
         Manager = msg.sender;
         ElectionsState = State_1.Running;
     }
@@ -135,35 +121,18 @@ contract ElectionsMissWorld {
         require(ElectionsState == State_1.Running);
         _;
     }
-    modifier VouerDidnVote() {
+    modifier VouterDidnVote() {
         require(VouterState == State_2.DidntVote);
         _;
     }
     
-    function toVote(uint k, uint v)public VouerDidnVote returns(uint size) {
+    function toVote(uint k, uint v)public VouterDidnVote returns(uint size) {
         data.insert(k, v);
         VouterState = State_2.Voted;
         return data.size;
     }
     
-    
-    
     /*
-    function Exist(string memory Name) public view StateRunning returns(bool){ //Существует тот за кого голосуем?
-        bool existance = false;
-        if (MissWorld[Name] > 0){
-            existance = true;
-        }
-        return existance;
-    }
-    
-    function vote(string memory NamSur) public notManager StateRunning{          //Проголосовать
-        bool existence = Exist(NamSur);
-        if (existence = true) {
-            MissWorld[NamSur] += 1;
-        }
-    }
-    
     function runForElections (string memory NamSur) public notManager StateRunning returns(string memory){ //Баллотироваться
     bool existence = Exist(NamSur);
         if (existence = true) {
