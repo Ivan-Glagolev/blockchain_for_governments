@@ -1,6 +1,7 @@
 pragma solidity >=0.7.1 <0.8.0;
 // SPDX-License-Identifier: GlagolevIvanAlexeevich2001
 
+
 /*структура (ключ => значение)*/
 struct IndexValue
 {
@@ -44,7 +45,7 @@ library IterableMapping
     function remove (itmap storage self, uint key) internal returns (bool success)
     {
         uint keyIndex = self.data[key].keyIndex;        // создаём временную переменную, хранящую порядковый индекс удаляемого элемента с передаваемым в функцию ключем key
-        if (keyIndex == 0) return false;                 // если порядковый индекс элемента установлен на значение по умолчанию (эл-та нет) то возвращаем НЕУДАЧУ удаления
+        if (keyIndex == 0) return false;                // если порядковый индекс элемента установлен на значение по умолчанию (эл-та нет) то возвращаем НЕУДАЧУ удаления
         delete self.data[key];                          // УДАЛИТЬ элемент с передаваемым в функцию ключем KEY
         self.keys[keyIndex - 1].deleted = true;         // ПОМЕТИТЬ, что элемент с индексом keyIndex (-1 потому что начинаем с нуля) удалён, т.е. флаг_удадён ставим на true
         self.size --;                                   // -1 элемент от существующего объёма данных
@@ -80,7 +81,7 @@ library IterableMapping
         return iterate_next(self,uint(-1));
     }
     /*возвращает следующий порядковый индекс СУЩЕСТВУЮЩЕГО ЭЛЕМЕНТА после рассматриваемого элемента*/ 
-    function iterate_next (itmap storage self, uint keyIndex) internal view returns (uint r_keyIndex) 
+    function iterate_next (itmap storage self, uint keyIndex) internal view returns (uint right_keyIndex) 
     {
         do keyIndex++;                                                                      //сначала увеличиваем порядковый индекс рассматриваемого элемента
         while (keyIndex < self.keys.length && ( self.keys[keyIndex].deleted == true ));     //и повторим если следующий (флаг_удадён == true)
@@ -89,9 +90,12 @@ library IterableMapping
     }
 }
 
-
 contract Elections
 {
+    
+    event NewCandidate (address newCandidate, uint keyOfNewCandidate);
+    event NewVoute (address newVouter, uint voutedFor);
+    event ElectionsEnded();
     
     address public Manager;
     struct Winner
@@ -129,7 +133,8 @@ contract Elections
         require(msg.sender != Manager);
         _;
     } 
-    modifier StateRunning(){
+    modifier StateRunning()
+    {
         require(ElectionsState == State_1.Running);
         _;
     }
@@ -141,29 +146,25 @@ contract Elections
     modifier UserStateCorrect ()
     {
         require( (Vouter[msg.sender] == State_2.DidntVote) && (Candidate[msg.sender] == State_3.DidntRun) );
-        _;
-    }
+        _;    }
     
     function RunForElections (uint k) public UserStateCorrect StateRunning
     {
         data.insert(k, 1);
         Candidate[msg.sender] = State_3.AlreadyRun;
+        emit NewCandidate (msg.sender, k);
     }
     
     function ToVote(uint k) public UserStateCorrect
     {
         data.addOneVote(k);
         Vouter[msg.sender] = State_2.Voted;
+        emit NewVoute(msg.sender, k);
     }
     
-    function GetnumberCandidates() public view onlyManager returns (uint)
+    function GetNumberOfCandidates() public view onlyManager returns (uint)
     {
         return data.keys.length;
-    }
-    
-    function CandidatesVotes (uint key) public view returns (uint value)
-    {
-         value = data.data[key].value;
     }
     
     function StopElections () public onlyManager StateRunning returns (uint KeyWinner, uint ValueWinner)
@@ -181,5 +182,6 @@ contract Elections
         ElectionsState = State_1.Ended;
         KeyWinner = WinnerOne.key;
         ValueWinner = WinnerOne.votes;
+        emit ElectionsEnded();
     }
 }
